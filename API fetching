@@ -1,0 +1,191 @@
+The provided script is a Flask-based web application that serves as an interactive riddle game with AI integration through the OpenRouter API. Here's a detailed analysis of the API endpoints and their functionality:
+API Endpoints
+1. GET / (Root Endpoint)
+Purpose: Serves the main HTML page with the game interface
+
+Response: Renders the complete HTML template with embedded CSS and JavaScript
+
+Features:
+
+Interactive riddle game interface
+
+Score tracking
+
+Timer functionality
+
+Difficulty selection
+
+Hint system
+
+2. GET /get_riddle
+Purpose: Generates and returns a new riddle
+
+Parameters:
+
+difficulty (optional): Specifies riddle difficulty ('easy', 'medium', etc.)
+
+session_id (optional): Unique identifier for user session
+
+Response:
+
+JSON object containing:
+
+id: Unique identifier for the riddle
+
+question: The riddle text
+
+hint: Primary hint
+
+hints: Additional hints array
+
+difficulty: Difficulty level
+
+Backend Process:
+
+Uses OpenAI API via OpenRouter to generate riddles
+
+Tracks riddles per session in user_sessions dictionary
+
+Starts timer for the riddle
+
+3. POST /check_answer
+Purpose: Validates user's answer against the correct solution
+
+Request Body:
+
+JSON containing:
+
+id: Riddle ID
+
+answer: User's answer
+
+session_id: User session identifier
+
+hints_used: Number of hints used
+
+Response:
+
+JSON object with:
+
+correct: Boolean indicating if answer was correct
+
+answer: Correct answer (only shown if wrong)
+
+score: Updated user score
+
+time_taken: Time taken to answer
+
+points_earned: Points gained/lost
+
+show_achievement: Flag for 100-point achievement
+
+Validation Process:
+
+Basic string normalization and comparison
+
+Special case handling for certain riddles (like keyboard)
+
+Fallback to AI verification via OpenRouter if basic checks fail
+
+Scoring:
+
+Base points: 5
+
+Time bonus: Up to +10 (decreases with time taken)
+
+Hint penalty: -2 per hint used
+
+Wrong answer penalty: -5 points
+
+Key Features
+Session Management:
+
+Tracks user sessions with user_sessions dictionary
+
+Stores:
+
+Answered riddles
+
+Current score
+
+Start times for each riddle
+
+Current riddles in play
+
+AI Integration:
+
+Uses OpenRouter as a proxy to various AI models (default: deepseek/deepseek-chat-v3-0324)
+
+Two main AI functions:
+
+Riddle generation
+
+Answer verification (fallback)
+
+Answer Verification Logic:
+
+Multi-layered validation:
+
+Direct string comparison after normalization
+
+Special case handling
+
+Substring matching
+
+Final AI verification if needed
+
+Frontend Interaction:
+
+Comprehensive JavaScript game logic
+
+Score persistence using localStorage
+
+Animated UI elements and feedback
+
+Technical Details
+Dependencies:
+
+Flask (web framework)
+
+OpenAI Python client (configured for OpenRouter)
+
+python-dotenv (for environment variables)
+
+asyncio (for asynchronous AI verification)
+
+Configuration:
+
+Requires OPENROUTER_API_KEY in environment variables
+
+OpenRouter base URL: https://openrouter.ai/api/v1
+
+Error Handling:
+
+Basic error responses for missing data
+
+Timeouts for AI verification
+
+Fallback mechanisms when AI verification fails
+
+Security Considerations
+Session Management:
+
+Uses simple in-memory dictionary (not suitable for production)
+
+No authentication - sessions identified by client-generated IDs
+
+API Security:
+
+No rate limiting implemented
+
+No input sanitization shown for the AI prompts
+
+Headers:
+
+Includes OpenRouter required headers:
+
+python
+extra_headers={
+    "HTTP-Referer": "http://localhost:5000",
+    "X-Title": "Riddle Bot",
+}
